@@ -1,25 +1,26 @@
 package com.zo
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 
 import scala.concurrent.Future
-import scala.io.Source
 
-class RequestService extends HttpSetup {
+class RequestService(apiKey: String)(implicit sys: ActorSystem) {
     
-    def apiRequest(optTitle: Option[String], optAuthor: Option[String], optPublisher: Option[String],
+    def apiRequest(title: String, optAuthor: Option[String], optPublisher: Option[String],
                    optSubject: Option[String]
-                  )
-    : Future[HttpResponse] = {
+                  ): Future[HttpResponse] = {
         
-        val title = optTitle match {case Some(value) => value; case None => ""}
-        val author = optAuthor match {case Some(value) => value; case None => ""}
-        val publisher = optPublisher match {case Some(value) => value; case None => ""}
-        val subject = optSubject match {case Some(value) => value; case None => ""}
+        val author = optAuthor.getOrElse("")
+        val publisher = optPublisher.getOrElse("")
+        val subject = optSubject.getOrElse("")
         
-        Http().singleRequest(HttpRequest(
-            uri = s"https://www.googleapis.com/books/v1/volumes?q=intitle:$title+inauthor:$author+inpublisher" +
-                  s":$publisher+subject:$subject&key=$apiKey"))
+        val request =
+            HttpRequest(
+                uri = s"https://www.googleapis.com/books/v1/volumes?q=$title+inauthor:$author+inpublisher" +
+                      s":$publisher+subject:$subject&key=$apiKey")
+        
+        Http().singleRequest(request)
     }
 }
