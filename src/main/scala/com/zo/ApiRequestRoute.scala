@@ -26,6 +26,6 @@ class ApiRequestRoute(request: RequestService) {
             }
         } ~
         pathEndOrSingleSlash {
-            getFromFile(config.getString("html.path"))
+            getFromFile("src/main/scala/com/zo/html/index.html")
         }
 }
